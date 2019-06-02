@@ -75,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     CURLOPT_POSTFIELDS => json_encode([
     'amount'=>$amount,
     'email'=>$email,
-    'reference' => '7PVGX8MEk85tgeEpVDtD34waserr',
+    'reference' => '7PVGX8MEk85tgeEpVDtD34waserrN&SHB',
     'callback_url' => $callback_url
     ]),
     CURLOPT_HTTPHEADER => [
