@@ -75,7 +75,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     CURLOPT_POSTFIELDS => json_encode([
     'amount'=>$amount,
     'email'=>$email,
-    'reference' => '7PVGX8MEk85tgeEpVDtD34waserrN&SHB',
     'callback_url' => $callback_url
     ]),
     CURLOPT_HTTPHEADER => [
@@ -93,11 +92,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     die('Curl returned error: ' . $err);
     }
 
-    $tranx = json_decode($response, true); print_r($tranx);
+    $tranx = json_decode($response, true); 
 
     if(!$tranx['status']){
     // there was an error from the API
-    print_r('API returned error: ' . $tranx['message']);
+    print_r('Error: ' . $tranx['message']);
     }
 
     // comment out this line if you want to redirect the user to the payment page
