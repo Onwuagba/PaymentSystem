@@ -1,2 +1,2 @@
-# payment_system
-A simple integration of PayStack payment gateway for a bespoke bakery business 
+# PaymentSystem
+A simple integration of PayStack payment gateway for the financial department of a bespoke bakery business 
