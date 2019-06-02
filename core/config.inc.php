@@ -3,7 +3,7 @@
 define('HOST', 'localhost'); 
 define('USER', 'root');
 define('PASSWORD', ''); 
-define('DATABASE', 'db_csir'); 
+define('DATABASE', 'db_paymentsystem'); 
 
 function DB()
 {
