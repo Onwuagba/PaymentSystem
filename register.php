@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $amount = \test_input(filter_input(INPUT_POST, "amount", \FILTER_SANITIZE_NUMBER_INT)); 
       $amount = $amount * 100;
       if (!preg_match('/^\d+$/', $amount)) {
-        $amountErr = "Amount must be whole number and in Kobo"; 
+        $amountErr = "Amount must be whole number"; 
       }
     } else {
       $amountErr = "Please enter an amount";
@@ -77,8 +77,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
      $id="";    
      
-    if (empty($nameErr) && empty($emailErr) && empty($bankErr) && empty($bankErr) && !empty($date) && empty($accountnumberErr)) {  
-        $user_id = $app->Register($id, $name, $email, $accountname, $accountnumber, $bank, $date);
+    if (empty($nameErr) && empty($emailErr) && empty($amountErr) && empty($bankErr) && !empty($date) && empty($accountnumberErr)) {  
+        $user_id = $app->Register($id, $name, $email, $amount, $accountnumber, $bank, $date);
         if ($user_id > 0) { 
             $register_message = $name . ' has been successfully registered.';
         } else {
@@ -178,7 +178,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 										<option value="">-- Select One --</option>
 										<option value="Access Bank">Access Bank</option>
 										<option value="First Bank">First Bank</option>
-										<option value="UBA Bank">UBA Bank</option>
+										<option value="United Bank For Africa">UBA Bank</option>
 										<option value="Standard Bank">Standard Chartered</option>
 										<option value="Stanbic Bank">Stanbic IBTC</option>
 										<option value="Union Bank">Union Bank</option>

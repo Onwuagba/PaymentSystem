@@ -113,7 +113,7 @@ $requests = $app->getDetails($id);
 								
 								<label for="Amount">Input Amount</label>
 								<div class="form-label-group">
-									<input type="text" name="amount" placeholder="Input amount in Kobo" pattern="[0-9]" value="<?php if (isset($amount)){
+									<input type="text" name="amount" placeholder="Input amount in Kobo" pattern="[0-9]{}" value="<?php if (isset($amount)){
 										echo htmlspecialchars($amount);
 									}
 									elseif (isset($requests[0]->salary)) {
@@ -132,7 +132,7 @@ $requests = $app->getDetails($id);
 										<option value="">-- Select One --</option>
 										<option value="Access Bank">Access Bank</option>
 										<option value="First Bank">First Bank</option>
-										<option value="UBA Bank">UBA Bank</option>
+										<option value="United Bank For Africa">UBA Bank</option>
 										<option value="Standard Bank">Standard Chartered</option>
 										<option value="Stanbic Bank">Stanbic IBTC</option>
 										<option value="Union Bank">Union Bank</option>

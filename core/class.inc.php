@@ -16,7 +16,7 @@ class Connect {
      * @return ID
      * */
 
-    public function Register($id, $name, $email, $accountname, $accountnumber, $bank, $date) { 
+    public function Register($id, $name, $email, $amount, $accountnumber, $bank, $date) { 
         try {
             $options = [
                 'cost' => 12
@@ -27,7 +27,7 @@ class Connect {
             $query->bindParam(":id", $id, \PDO::PARAM_INT);  
             $query->bindParam(":name", $name, \PDO::PARAM_STR);
             $query->bindParam(":email", $email, \PDO::PARAM_STR);
-            $query->bindParam(":amount", $amount, \PDO::PARAM_STR);
+            $query->bindParam(":amount", $amount, \PDO::PARAM_INT);
             $query->bindParam(":accountnumber", $accountnumber, \PDO::PARAM_INT);
             $query->bindParam(":bank", $bank, \PDO::PARAM_STR);
             $query->bindParam(":date_added", $date, \PDO::PARAM_STR);
@@ -166,24 +166,6 @@ class Connect {
         }
     }
 
-
-
-    public function update($tableName) {
-        try {
-            $conn = DB();
-            $query = $conn->prepare("SELECT * FROM " . $tableName . " order by `Id` desc");
-            $query->bindParam(":tableName", $tableName, PDO::PARAM_STR);
-            $query->execute();
-            if ($query->rowCount() > 0) {
-                return $query->fetchAll(PDO::FETCH_OBJ);
-            }else{
-                return false;
-            }   
-        } catch (PDOException $e) {
-            exit($e->getMessage());
-        }
-    }
-
     
     public function getBankCode($bank){
       $curl = curl_init();
@@ -208,17 +190,20 @@ class Connect {
 
       $tranx = json_decode($response, true);  
 
-      if(!$tranx['status']){
+      if(!$tranx['status']){ 
       // there was an error from the API
         print_r('Error: ' . $tranx['message']);
       }else{
-        if (is_array($tranx)) {
+        if (is_array($tranx)) { 
           foreach ($tranx as $bankName) {
-            if (is_array($bankName)){
+            if (is_array($bankName)){ 
               foreach ($bankName as $bankName2) { 
-                if ($bankName2['name'] == $bank ) {
+                if ($bankName2['name'] == $bank ) { 
                   $code = $bankName2['code'];
                   return $code; 
+                }else{
+                  $error = 'Error: There is an issue retrieving bank information.';
+                  return $error;
                 }
               }
             }

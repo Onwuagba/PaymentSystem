@@ -22,12 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   } else {
     $descriptionErr = "Please enter a name";
   }
-
-
-  // foreach ($requests as $request) {
-  // 		$BulkReceiverCode[] = $app->getReceiver($request->name, $description, $request->account_number, $app->getBankCode($request->bank));
-  // }
-
+  
   foreach ($requests as $request) {
   	$transfer [] = array("amount"=>$request->salary, 
   						"recipient"=> $app->getReceiver($request->name, $description, $request->account_number, $app->getBankCode($request->bank)));

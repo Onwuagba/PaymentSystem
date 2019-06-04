@@ -62,11 +62,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (empty($nameErr) && empty($emailErr) && empty($bankErr) && empty($amountErr) && empty($accountnumberErr) & empty($descriptionErr)) {
 
     //Call ListBanks Endpoint
-    $bankcode = $app->getBankCode($bank);
+    $bankcode = $app->getBankCode($bank); 
     //End ListBanks Endpoint
 
     //Create Transfer Recipient
-    $recipient_code = $app->getReceiver($name, $description, $accountnumber, $bankcode);
+    $recipient_code = $app->getReceiver($name, $description, $accountnumber, $bankcode); 
     //End Transfer Recipient
 
     // Initiate transfer

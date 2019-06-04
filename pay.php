@@ -58,7 +58,7 @@ $requests = $app->getDetails($id);
 				<div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
 					<div class="card card-signin my-5">
 						<div class="card-body">
-							<h5 class="card-title text-center">Pay Employee</h5>
+							<h5 class="card-title text-center">Pay Vendor</h5>
 
 							<form action="initialize.php"  method="POST" class="form-signin">
 								<label for="Name">Employee Name</label>
@@ -111,7 +111,7 @@ $requests = $app->getDetails($id);
 
 								<label for="Amount">Input Amount</label>
 								<div class="form-label-group">
-									<input type="text" name="amount" placeholder="Input amount in Kobo" pattern="[0-9]" value="<?php if (isset($amount)){
+									<input type="text" name="amount" placeholder="Input amount in Kobo" pattern="[0-9]{}" value="<?php if (isset($amount)){
 										echo htmlspecialchars($amount);
 									}
 									elseif (isset($requests[0]->salary)) {

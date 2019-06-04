@@ -49,13 +49,14 @@ $viewBalance = $app->checkBalance();
 	<div class="content-wrapper"> 
 		<div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
 			<?php if (isset($payment)&&!empty($payment)) {
-				echo "<div class=\"alert alert-success\">
-				<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>
-				<strong><span class=\"glyphicon glyphicon-ok\"></span> </strong> $payment
-				</div>";
-				unset($_SESSION['payment']);
-			} 
+					echo "<div class=\"alert alert-success\">
+					<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>
+					<strong><span class=\"glyphicon glyphicon-ok\"></span> </strong> $payment
+					</div>";
+					unset($_SESSION['payment']);
+				}
 			?>
+
 		</div>
 		<div class="container-fluid">
 			<div class="collapse" id="collapseExample">
@@ -93,7 +94,7 @@ $viewBalance = $app->checkBalance();
 							<thead>
 								<tr>
 									<th>ID</th>
-									<th>Employee</th>
+									<th>Vendor</th>
 									<th>Email</th>
 									<th>Amount</th>
 									<th>Account Number</th>
@@ -106,7 +107,7 @@ $viewBalance = $app->checkBalance();
 							<tfoot>
 								<tr>
 									<th>ID</th>
-									<th>Employee</th>
+									<th>Vendor</th>
 									<th>Email</th>
 									<th>Amount</th>
 									<th>Account Number</th>
