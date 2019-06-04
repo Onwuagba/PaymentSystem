@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		          <div class="card-body">
 		            <h5 class="card-title text-center">Sign In</h5>
 		            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"  method="post" class="form-signin">
-		              <label for="inputEmail">Email address</label>
+		              <label for="username">Username</label>
 		              <div class="form-label-group">
 		              	<input type="text" name="username" value="<?php if (isset($username)) {
 		                    echo htmlspecialchars($username);
@@ -80,7 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		              </div>
 
 		              <div class="form-label-group">
-		              <label for="inputEmail">Password</label>
+		              <label for="password">Password</label>
                         <input type="password" name="password" value="" placeholder="Password" id="input-password" class="form-control" autocomplete="off" required />
 		              </div>
 

@@ -1,6 +1,6 @@
 <?php 
 session_start();
-if (isset($_SESSION['user'])&& !empty($_SESSION['user'])) {
+if (isset($_SESSION['user'])&& !empty($_SESSION['user'])) { 
   session_regenerate_id(); 
 }else{
   unset($_SESSION['user']);
@@ -8,45 +8,41 @@ if (isset($_SESSION['user'])&& !empty($_SESSION['user'])) {
   header("Location: index.php");
 }
 
-$register_message = '';
+$id = "";
+
+// get id from URL
+if (isset($_GET['id'])) { 
+	$id = $_GET['id'];
+}
+// else{
+//   session_destroy();
+//   header("Location: index.php");
+// }
+
+$login_message = '';
 require_once ('core/config.inc.php'); 
 $conn = DB(); 
 require_once ('core/class.inc.php');
 $app = new Connect;
-$name = $email = $bank = $accountname =  $accountnumber = $date = "";
-$nameErr = $emailErr = $bankErr = $accountnameErr = $accountnumberErr = "";
+$requests = $app->getDetails($id); 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") { 
-    //NAME 
-    if (isset($_POST["name"]) && !empty($_POST["name"])) { 
-        $name = \test_input(filter_input(\INPUT_POST, "name", \FILTER_SANITIZE_STRING));
-    } else {
-        $nameErr = "Please enter a name";
-    }
+  //NAME 
+  if (isset($_POST["name"]) && !empty($_POST["name"])) { 
+    $name = \test_input(filter_input(\INPUT_POST, "name", \FILTER_SANITIZE_STRING)); 
+  } else {
+    $nameErr = "Please enter a name";
+  }
 
-    //EMAIL
-    if (isset($_POST["email"]) && !empty($_POST["email"])) { 
-        $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
-        $email = test_input(filter_input(INPUT_POST, "email", FILTER_VALIDATE_EMAIL));
-        if ($app->isEmail($email)) {
-            $emailErr = "Email already exists";
-        }
-    } else {
-        $emailErr = "Please enter an Email";
-    }
+  //EMAIL
+  if (isset($_POST["email"]) && !empty($_POST["email"])) { 
+    $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
+    $email = test_input(filter_input(INPUT_POST, "email", FILTER_VALIDATE_EMAIL)); 
+  } else {
+    $emailErr = "Please enter an Email";
+  }
 
-    //Amount
-    if (isset($_POST["amount"]) && !empty($_POST["amount"])) {
-      $amount = \test_input(filter_input(INPUT_POST, "amount", \FILTER_SANITIZE_NUMBER_INT)); 
-      $amount = $amount * 100;
-      if (!preg_match('/^\d+$/', $amount)) {
-        $amountErr = "Amount must be whole number and in Kobo"; 
-      }
-    } else {
-      $amountErr = "Please enter an amount";
-    }
-
-    //Bank
+  //Bank
     if (isset($_POST["bank"]) && !empty($_POST["bank"])) { 
         $bank = test_input(filter_input(\INPUT_POST, "bank", \FILTER_SANITIZE_STRING));
         if ($bank == "-- Select One --") {
@@ -56,42 +52,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $bankErr = "No bank selected";
     }
 
-    //AccountNumber
-    if (isset($_POST["accountnumber"]) && !empty($_POST["accountnumber"])) {
-    	$accountnumber = \test_input(filter_input(INPUT_POST, "accountnumber", \FILTER_SANITIZE_NUMBER_INT)); 
-    	if (!preg_match('/^[0-9]{10}$/', $accountnumber)) {
-    	  $accountnumberErr = "Account number should have only NUMBERS and must be <= 10!"; 
-    	}
-    	elseif ($app->isAccountNumber($accountnumber)){
-	        $accountnumberErr = "Account number already exists.";
-	    }
+    //Amount
+    if (isset($_POST["amount"]) && !empty($_POST["amount"])) {
+      $amount = \test_input(filter_input(INPUT_POST, "amount", \FILTER_SANITIZE_NUMBER_INT)); 
+      $amount = $amount * 100;
+      if (!preg_match('/^\d+$/', $amount)) {
+        $amountErr = "Amount must be whole number"; 
+      }
     } else {
-        $accountnumberErr = "Please enter an account number";
-    }
-    
-    // DATE
-    $date = date("Y-m-d h:i:s");
-    if (empty($date)) {
-        header('Location:https://efccnigeria.org');
+      $amountErr = "Please enter an amount";
     }
 
-     $id="";    
-     
-    if (empty($nameErr) && empty($emailErr) && empty($bankErr) && empty($bankErr) && !empty($date) && empty($accountnumberErr)) {  
-        $user_id = $app->Register($id, $name, $email, $accountname, $accountnumber, $bank, $date);
-        if ($user_id > 0) { 
-            $register_message = $name . ' has been successfully registered.';
-        } else {
-            $register_error = 'problem encountered. Ensure you have a working internet';
-        }
-    } else {
-        $register_error = 'Error encountered. Kindly treat all errors before submitting';
+
+  //AccountNumber
+  if (isset($_POST["accountnumber"]) && !empty($_POST["accountnumber"])) {
+    $accountnumber = \test_input(filter_input(INPUT_POST, "accountnumber", \FILTER_SANITIZE_NUMBER_INT)); 
+    if (!preg_match('/^[0-9]{10}$/', $accountnumber)) {
+      $accountnumberErr = "Account number should have only NUMBERS and must be <= 10!"; 
     }
+  } else {
+    $accountnumberErr = "Please enter an account number";
+  }
+
+  if (empty($nameErr) && empty($emailErr) && empty($bankErr) && empty($amountErr) && empty($accountnumberErr)) {
+  	$update = "UPDATE ps_employee SET 
+  	`name` = :name, 
+  	`email` = :email, 
+  	`salary` = :amount, 
+  	`account_number` = :accountnumber, 
+  	`bank` = :bank
+  	WHERE `Id` = :id "; 
+  	$query =  $conn->prepare($update); 
+  	$query->bindParam(":name", $name, \PDO::PARAM_STR);
+  	$query->bindParam(":email", $email, \PDO::PARAM_STR);
+  	$query->bindParam(":amount", $amount, \PDO::PARAM_STR);
+  	$query->bindParam(":accountnumber", $accountnumber, \PDO::PARAM_INT);
+  	$query->bindParam(":bank", $bank, \PDO::PARAM_STR);
+  	$query->execute(); 
+  	if($query->rowCount() > 0){ 
+  		$success = $name . "has been updated";
+  	}else{
+  		$failed = "Error: No User found";
+  	}
+  }
+  else {
+    $failed = 'Error encountered. Kindly treat all errors before submitting';
+  }
+
+// END post check
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="">
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -119,28 +132,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		<div class="container">
 			<div class="row">
 				<div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
-					<?php if (isset($register_message)&&!empty($register_message)) {
-						echo "<div class=\"alert alert-success\">
-						<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>
-						<strong><span class=\"glyphicon glyphicon-ok\"></span> </strong> $register_message
-						</div>";
-					} elseif (isset($register_error)&&!empty($register_error)) {
-						echo "<div class=\"alert alert-danger\">
-						<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>
-						<strong><span class=\"glyphicon glyphicon-remove\"></span> </strong> <span>$register_error</span>
-						</div>";
+					  <?php
+					  if (isset($failed)) {
+					     echo '<div class="alert alert-danger text-center">
+					     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+					     <p class="text-size-16">'.$failed.'</p>
+					     </div>';
+					 }elseif (isset($success)&&!empty($success)){
+					  echo '<div class="alert alert-success text-center">
+					  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+					  <strong style="font-size:16px;">'. $success .'</strong>
+					  </div>';
 					}
 					?>
 					<div class="card card-signin my-5">
 						<div class="card-body">
-							<h5 class="card-title text-center">Add New Employee</h5>
+							<h5 class="card-title text-center">Pay Employee</h5>
 
-							<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"  method="post" class="form-signin">
-								<label for="Name">Name</label>
+							<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"  method="POST" class="form-signin">
+								<label for="Name">Employee Name</label>
 								<div class="form-label-group">
-									<input type="text" name="name" value="<?php if (isset($name)) {
+									<input type="text" name="name" value="<?php if (isset($name)){
 										echo htmlspecialchars($name);
-									} ?>"class="form-control" required/>
+									}
+									elseif (isset($requests[0]->name)) {
+										echo $requests[0]->name;
+									} ?>" class="form-control" required/>
 									<span class="error">
 										<?php if (isset($nameErr) && !empty($nameErr)) {
 											echo $nameErr;
@@ -150,8 +167,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 								<label for="Email">Email address</label>
 								<div class="form-label-group">
-									<input type="email" name="email" value="<?php if (isset($email)) {
+									<input type="email" name="email" value="<?php if (isset($email)){
 										echo htmlspecialchars($email);
+									}
+									elseif (isset($requests[0]->email)) {
+										echo htmlspecialchars($requests[0]->email);
 									} ?>" class="form-control" required/>
 									<span class="error">
 										<?php if (isset($emailErr) && !empty($emailErr)) {
@@ -160,10 +180,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 									</span>
 								</div>
 								
-								<label for="Amount">Salary</label>
+								<label for="Amount">Input Amount</label>
 								<div class="form-label-group">
-									<input type="text" name="amount" placeholder="Input amount" value="<?php if (isset($amount)) {
+									<input type="text" name="amount" placeholder="Input amount in Kobo" value="<?php if (isset($amount)){
 										echo htmlspecialchars($amount);
+									}
+									elseif (isset($requests[0]->salary)) {
+										echo htmlspecialchars($requests[0]->salary);
 									} ?>" class="form-control" required/>
 									<span class="error">
 										<?php if (isset($amountErr) && !empty($amountErr)) {
@@ -196,9 +219,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 								<label for="AccountNumber">Account Number</label>
 								<div class="form-label-group">
-									<input type="text" name="accountnumber" pattern="[0-9]{10}" value="<?php if (isset($accountnumber)) {
+									<input type="text" name="accountnumber" pattern="[0-9]{10}" value="<?php if (isset($accountnumber)){
 										echo htmlspecialchars($accountnumber);
-									} ?>" placeholder="Not more than 10 numbers" class="form-control" required/>
+									}
+									elseif (isset($requests[0]->account_number)) {
+										echo htmlspecialchars($requests[0]->account_number);
+									} ?>" class="form-control" required/>
 									<span class="error">
 										<?php if (isset($accountnumberErr) && !empty($accountnumberErr)) {
 											echo $accountnumberErr;
@@ -206,7 +232,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 									</span>
 								</div>
 
-								<button class="btn btn-lg btn-primary btn-block" type="submit" style="margin-top: 10px;">Register</button>
+								<button class="btn btn-lg btn-primary btn-block" type="submit" style="margin-top: 10px;">Update</button>
 							</form>
 						</div>
 					</div>
@@ -214,6 +240,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 				</div>
 			</div>
 		</div>
+		<script type="text/javascript">
+			function removeAttribute(){
+				$(this).closest('tr').find('input').removeAttr('readonly');
+			}
+		</script>
 		<!-- Bootstrap JavaScript -->
 		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>

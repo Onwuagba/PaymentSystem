@@ -22,12 +22,12 @@ class Connect {
                 'cost' => 12
             ];
             $conn = DB();
-            $sql = "INSERT INTO ps_employee(`id`, `name`, `email`, `account_name`, `account_number`, `bank`, `date`) VALUES (:id,:name,:email,:accountname,:accountnumber,:bank,:date_added)"; 
+            $sql = "INSERT INTO ps_employee(`id`, `name`, `email`, `salary`, `account_number`, `bank`, `date`) VALUES (:id,:name,:email,:amount,:accountnumber,:bank,:date_added)"; 
             $query = $conn->prepare($sql);         
             $query->bindParam(":id", $id, \PDO::PARAM_INT);  
             $query->bindParam(":name", $name, \PDO::PARAM_STR);
             $query->bindParam(":email", $email, \PDO::PARAM_STR);
-            $query->bindParam(":accountname", $accountname, \PDO::PARAM_STR);
+            $query->bindParam(":amount", $amount, \PDO::PARAM_STR);
             $query->bindParam(":accountnumber", $accountnumber, \PDO::PARAM_INT);
             $query->bindParam(":bank", $bank, \PDO::PARAM_STR);
             $query->bindParam(":date_added", $date, \PDO::PARAM_STR);
@@ -166,14 +166,9 @@ class Connect {
         }
     }
 
-    /*
-     * get all from a table
-     *
-     * 
-     * @return $mixed
-     * */
 
-    public function select_all($tableName) {
+
+    public function update($tableName) {
         try {
             $conn = DB();
             $query = $conn->prepare("SELECT * FROM " . $tableName . " order by `Id` desc");
@@ -189,31 +184,201 @@ class Connect {
         }
     }
 
+    
+    public function getBankCode($bank){
+      $curl = curl_init();
+      curl_setopt_array($curl, array(
+      CURLOPT_URL => "https://api.paystack.co/bank",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_CUSTOMREQUEST => "GET",
+      CURLOPT_HTTPHEADER => [
+      "authorization: Bearer sk_test_9e66427c528098ca9e91fe3d109a083f6aaf619e", 
+      "content-type: application/json",
+      "cache-control: no-cache"
+      ],
+      ));
 
-    /*
-     * Logout template
-     *
-     * @return $query
-     * */
+      $response = curl_exec($curl); 
+      $err = curl_error($curl);
 
-    public function logout() {
-        try {
-            $conn = DB();
-            $value = "active";
-            $logout = "UPDATE `user_csir`
-                       SET `status` =:value
-                       WHERE `user_Id` =:user_Id"; 
-            $query =  $conn->prepare($logout); 
-            $query->bindParam("user_Id", $_SESSION['user_id'], PDO::PARAM_INT); 
-            $query->bindParam("value", $value, PDO::PARAM_STR); 
-            $query->execute(); 
-            if($query->rowCount() > 0){ 
-                return true;
+      if($err){
+      // there was an error contacting the Paystack API
+      die('Curl returned error: ' . $err);
+      }
+
+      $tranx = json_decode($response, true);  
+
+      if(!$tranx['status']){
+      // there was an error from the API
+        print_r('Error: ' . $tranx['message']);
+      }else{
+        if (is_array($tranx)) {
+          foreach ($tranx as $bankName) {
+            if (is_array($bankName)){
+              foreach ($bankName as $bankName2) { 
+                if ($bankName2['name'] == $bank ) {
+                  $code = $bankName2['code'];
+                  return $code; 
+                }
               }
-          } 
-          catch (PDOException $e) {
-            exit($e->getMessage());
+            }
+          }
         }
+      }
+      curl_close($curl);
+    }
+
+    public function getReceiver($name, $description, $accountnumber, $bankcode){
+
+      $handle = curl_init();
+      curl_setopt_array($handle, array(
+      CURLOPT_URL => "https://api.paystack.co/transferrecipient",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => json_encode([
+        "type" => "nuban",
+        "name" => $name,
+        "description"  => $description,
+        "account_number" => $accountnumber,
+        "bank_code" => $bankcode,
+        "currency" => "NGN",
+      ]),
+      CURLOPT_HTTPHEADER => [
+      "authorization: Bearer sk_test_9e66427c528098ca9e91fe3d109a083f6aaf619e", 
+      "content-type: application/json",
+      "cache-control: no-cache"
+      ],
+      ));
+
+      $responseRec = curl_exec($handle); 
+      $errRec = curl_error($handle);
+
+      if($errRec){
+      // there was an error contacting the Paystack API
+      die('Curl returned error: ' . $errRec);
+      }
+
+      $transactionReceiver = json_decode($responseRec, true);  
+
+      if(!$transactionReceiver['status']){ 
+      // there was an error from the API
+        return('Error: ' . $transactionReceiver['message']);
+      }else{ 
+        return $transactionReceiver['data']['recipient_code'];
+      }
+      curl_close($handle);
+    }
+
+    public function InitateTransfer($amount, $recipient_code){
+      $handle2 = curl_init();
+      curl_setopt_array($handle2, array(
+      CURLOPT_URL => "https://api.paystack.co/transfer",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => json_encode([
+        "source" => "balance",
+        // "reason" => $name, //optional
+        "amount"  => $amount,
+        "recipient" => $recipient_code,
+      ]),
+      CURLOPT_HTTPHEADER => [
+      "authorization: Bearer sk_test_9e66427c528098ca9e91fe3d109a083f6aaf619e", 
+      "content-type: application/json",
+      "cache-control: no-cache"
+      ],
+      ));
+
+      $responseRec = curl_exec($handle2); 
+      $errRec = curl_error($handle2);
+
+      if($errRec){
+      // there was an error contacting the Paystack API
+      die('Curl returned error: ' . $errRec);
+      }
+
+      $initiateTransaction = json_decode($responseRec, true);  
+
+      if(!$initiateTransaction['status']){ 
+      // there was an error from the API
+        return('Error: ' . $initiateTransaction['message']);
+      }else{ 
+        // return $initiateTransaction['data']['transfer_code'];
+        $_SESSION['payment'] = "Transaction was successful"; 
+        header("Location: admin.php");
+      }
+      curl_close($handle2);
+    }
+
+    public function BulkTransfer($transfers){
+      $handle2 = curl_init();
+      curl_setopt_array($handle2, array(
+      CURLOPT_URL => "https://api.paystack.co/transfer/bulk",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => json_encode([
+        "currency" => "NGN",
+        "source" => "balance",
+        "transfers"  => $transfers
+      ]),
+      CURLOPT_HTTPHEADER => [
+      "authorization: Bearer sk_test_9e66427c528098ca9e91fe3d109a083f6aaf619e", 
+      "content-type: application/json",
+      "cache-control: no-cache"
+      ],
+      ));
+
+      $responseRec = curl_exec($handle2); 
+      $errRec = curl_error($handle2);
+
+      if($errRec){
+      // there was an error contacting the Paystack API
+      die('Curl returned error: ' . $errRec);
+      }
+
+      $initiateTransaction = json_decode($responseRec, true);  
+
+      if(!$initiateTransaction['status']){ 
+      // there was an error from the API
+        return('Error: ' . $initiateTransaction['message']);
+      }else{ 
+        // return $initiateTransaction['data']['transfer_code'];
+        $_SESSION['payment'] = "Transaction was successful"; 
+        header("Location: admin.php");
+      }
+      curl_close($handle2);
+    }
+
+    // Retrieve Balance
+    public function checkBalance(){
+      $curl = curl_init();
+      curl_setopt_array($curl, array(
+      CURLOPT_URL => "https://api.paystack.co/balance",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_CUSTOMREQUEST => "GET",
+      CURLOPT_HTTPHEADER => [
+      "authorization: Bearer sk_test_9e66427c528098ca9e91fe3d109a083f6aaf619e", 
+      "content-type: application/json",
+      "cache-control: no-cache"
+      ],
+      ));
+
+      $responseRec = curl_exec($curl); 
+      $errRec = curl_error($curl);
+
+      if($errRec){
+      // there was an error contacting the Paystack API
+      die('Curl returned error: ' . $errRec);
+      }
+
+      $balance = json_decode($responseRec, true);  
+
+      if(!$balance['status']){ 
+      // there was an error from the API
+        return('Error: ' . $balance['message']);
+      }else{ 
+        return $balance['data'][0]['balance'];
+      }
+      curl_close($curl);
     }
 }
 ?>
