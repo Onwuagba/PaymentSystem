@@ -44,7 +44,7 @@ $viewBalance = $app->checkBalance();
 <body>  
 	<div style="margin: 20px;">
 		<a href="register.php"><button type="button" class="btn btn-primary">Add new</button></a>
-		<a href="<?php ?> "><button type="button" class="btn btn-danger">Logout</button></a>
+		<a href="logout.php"><button type="button" class="btn btn-danger">Logout</button></a>
 	</div>
 	<div class="content-wrapper"> 
 		<div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
