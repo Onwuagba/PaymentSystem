@@ -25,82 +25,6 @@ $conn = DB();
 require_once ('core/class.inc.php');
 $app = new Connect;
 $requests = $app->getDetails($id); 
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") { 
-  //NAME 
-  if (isset($_POST["name"]) && !empty($_POST["name"])) { 
-    $name = \test_input(filter_input(\INPUT_POST, "name", \FILTER_SANITIZE_STRING)); 
-  } else {
-    $nameErr = "Please enter a name";
-  }
-
-  //EMAIL
-  if (isset($_POST["email"]) && !empty($_POST["email"])) { 
-    $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
-    $email = test_input(filter_input(INPUT_POST, "email", FILTER_VALIDATE_EMAIL)); 
-  } else {
-    $emailErr = "Please enter an Email";
-  }
-
-  //Bank
-    if (isset($_POST["bank"]) && !empty($_POST["bank"])) { 
-        $bank = test_input(filter_input(\INPUT_POST, "bank", \FILTER_SANITIZE_STRING));
-        if ($bank == "-- Select One --") {
-        	$bankErr = "Kindly select a bank";
-        }
-    } else {
-        $bankErr = "No bank selected";
-    }
-
-    //Amount
-    if (isset($_POST["amount"]) && !empty($_POST["amount"])) {
-      $amount = \test_input(filter_input(INPUT_POST, "amount", \FILTER_SANITIZE_NUMBER_INT)); 
-      $amount = $amount * 100;
-      if (!preg_match('/^\d+$/', $amount)) {
-        $amountErr = "Amount must be whole number"; 
-      }
-    } else {
-      $amountErr = "Please enter an amount";
-    }
-
-
-  //AccountNumber
-  if (isset($_POST["accountnumber"]) && !empty($_POST["accountnumber"])) {
-    $accountnumber = \test_input(filter_input(INPUT_POST, "accountnumber", \FILTER_SANITIZE_NUMBER_INT)); 
-    if (!preg_match('/^[0-9]{10}$/', $accountnumber)) {
-      $accountnumberErr = "Account number should have only NUMBERS and must be <= 10!"; 
-    }
-  } else {
-    $accountnumberErr = "Please enter an account number";
-  }
-
-  if (empty($nameErr) && empty($emailErr) && empty($bankErr) && empty($amountErr) && empty($accountnumberErr)) {
-  	$update = "UPDATE ps_employee SET 
-  	`name` = :name, 
-  	`email` = :email, 
-  	`salary` = :amount, 
-  	`account_number` = :accountnumber, 
-  	`bank` = :bank
-  	WHERE `Id` = :id "; 
-  	$query =  $conn->prepare($update); 
-  	$query->bindParam(":name", $name, \PDO::PARAM_STR);
-  	$query->bindParam(":email", $email, \PDO::PARAM_STR);
-  	$query->bindParam(":amount", $amount, \PDO::PARAM_STR);
-  	$query->bindParam(":accountnumber", $accountnumber, \PDO::PARAM_INT);
-  	$query->bindParam(":bank", $bank, \PDO::PARAM_STR);
-  	$query->execute(); 
-  	if($query->rowCount() > 0){ 
-  		$success = $name . "has been updated";
-  	}else{
-  		$failed = "Error: No User found";
-  	}
-  }
-  else {
-    $failed = 'Error encountered. Kindly treat all errors before submitting';
-  }
-
-// END post check
-}
 ?>
 
 <!DOCTYPE html>
@@ -133,23 +57,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			<div class="row">
 				<div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
 					  <?php
-					  if (isset($failed)) {
+					  if (isset($_SESSION['failed'])) {
 					     echo '<div class="alert alert-danger text-center">
 					     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-					     <p class="text-size-16">'.$failed.'</p>
-					     </div>';
-					 }elseif (isset($success)&&!empty($success)){
+					     <p class="text-size-16">'.$_SESSION['failed'].'</p>
+					     </div>'; unset($_SESSION['failed']);
+					 }elseif (isset($_SESSION['update'])&&!empty($_SESSION['update'])){
 					  echo '<div class="alert alert-success text-center">
 					  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-					  <strong style="font-size:16px;">'. $success .'</strong>
-					  </div>';
+					  <strong style="font-size:16px;">'. $_SESSION['update'] .'</strong>
+					  </div>';unset($_SESSION['update']);
 					}
 					?>
 					<div class="card card-signin my-5">
 						<div class="card-body">
 							<h5 class="card-title text-center">Pay Employee</h5>
 
-							<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"  method="POST" class="form-signin">
+							<form action="verify.php"  method="POST" class="form-signin">
+								<input type="hidden" name="id" id="input" class="form-control" value="<?php if (isset($id)){
+										echo htmlspecialchars($id);
+									}
+									elseif (isset($requests[0]->id)) {
+										echo $requests[0]->id;
+									} ?>">
+
 								<label for="Name">Employee Name</label>
 								<div class="form-label-group">
 									<input type="text" name="name" value="<?php if (isset($name)){
@@ -182,7 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 								
 								<label for="Amount">Input Amount</label>
 								<div class="form-label-group">
-									<input type="text" name="amount" placeholder="Input amount in Kobo" value="<?php if (isset($amount)){
+									<input type="text" name="amount" placeholder="Input amount in Kobo" pattern="[0-9]" value="<?php if (isset($amount)){
 										echo htmlspecialchars($amount);
 									}
 									elseif (isset($requests[0]->salary)) {

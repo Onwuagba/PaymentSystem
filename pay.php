@@ -111,7 +111,7 @@ $requests = $app->getDetails($id);
 
 								<label for="Amount">Input Amount</label>
 								<div class="form-label-group">
-									<input type="text" name="amount" placeholder="Input amount in Kobo" value="<?php if (isset($amount)){
+									<input type="text" name="amount" placeholder="Input amount in Kobo" pattern="[0-9]" value="<?php if (isset($amount)){
 										echo htmlspecialchars($amount);
 									}
 									elseif (isset($requests[0]->salary)) {
