@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   
   foreach ($requests as $request) {
   	$transfer [] = array("amount"=>$request->salary, 
-  						"recipient"=> $app->getReceiver($request->name, $description, $request->account_number, $app->getBankCode($request->bank)));
+  	"recipient"=> $app->getReceiver($request->name, $description, $request->account_number, $app->getBankCode($request->bank)));
   }
 
   $complete = $app->BulkTransfer($transfer);

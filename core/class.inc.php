@@ -168,8 +168,8 @@ class Connect {
 
     
     public function getBankCode($bank){
-      $curl = curl_init();
-      curl_setopt_array($curl, array(
+      $cull = curl_init();
+      curl_setopt_array($cull, array(
       CURLOPT_URL => "https://api.paystack.co/bank",
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_CUSTOMREQUEST => "GET",
@@ -180,8 +180,8 @@ class Connect {
       ],
       ));
 
-      $response = curl_exec($curl); 
-      $err = curl_error($curl);
+      $response = curl_exec($cull); 
+      $err = curl_error($cull);
 
       if($err){
       // there was an error contacting the Paystack API
