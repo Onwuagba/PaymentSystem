@@ -12,20 +12,14 @@ $conn = DB();
 require_once ('core/class.inc.php');
 $app = new Connect;
 $requests = $app->get_employees();
+$payment ="";
 
 // checks if payment transaction has been made
 if(isset($_SESSION['payment'])){
 	$payment = $_SESSION['payment'];
 }
-// function logout()
-// {
-// 	unset($_SESSION['user_id']);
-// 	session_unset();
-// 	session_destroy(); 
-// 	header("Location: index.php");
-// }
 
-$viewBalance = $app->checkBalance();
+$viewBalance = number_format($app->checkBalance()/100 , 2);
 ?>
 <!DOCTYPE html>
 <html lang="">
@@ -54,6 +48,12 @@ $viewBalance = $app->checkBalance();
 					<strong><span class=\"glyphicon glyphicon-ok\"></span> </strong> $payment
 					</div>";
 					unset($_SESSION['payment']);
+				}elseif (isset($_SESSION['failure'])&&!empty($_SESSION['failure'])) {
+					echo "<div class=\"alert alert-danger\">
+					<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>
+					<strong><span class=\"glyphicon glyphicon-ok\"></span> </strong> $_SESSION[failure]
+					</div>";
+					unset($_SESSION['failure']);
 				}
 			?>
 
@@ -70,14 +70,14 @@ $viewBalance = $app->checkBalance();
 								</div>
 								<button class="btn btn-lg btn-primary btn-block" type="submit" style="margin-top: 10px;">Pay</button>
 							</form><br>	
-							<span class="text-muted" style="font-size: 12px;">Take your time to confirm that the email addresses and amount in the table are correct. Click the edit link of each employee to update.</span>
+							<span class="text-muted" style="font-size: 12px;">Take your time to confirm that the email addresses and amount in the table below are correct. Click the edit link of each employee to update.</span>
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="card mb-3">
 				<div class="card-header">
-					<i class="fa fa-table"></i>Employees Table
+					<i class="fa fa-table"></i>Vendor Table
 					<div class="float-right">
 						<span class="float-right">
 							Balance: <b> &#8358; <?php 
@@ -123,7 +123,7 @@ $viewBalance = $app->checkBalance();
 										<td><?php echo $request->id;?></td>
 										<td><?php echo $request->name;?></td>
 										<td><?php echo $request->email;?></td>
-										<td><?php echo $request->salary;?></td>
+										<td><?php echo number_format($request->salary);?></td>
 										<td><?php echo $request->account_number;?></td>
 										<td><?php echo $request->bank;?></td>
 										<td><?php echo $request->date;?></td>
@@ -142,7 +142,7 @@ $viewBalance = $app->checkBalance();
 			function payWithPaystack(){
 				var handler = PaystackPop.setup({
 					key: 'pk_test_20b286d4af3125ddbea6c12f54c42289a287be0f',
-					email: 'customer@email.com',
+					email: 'onwuagbakenenna@gmail.com',
 					amount: 10000000,
 					metadata: {
 						custom_fields: [
@@ -154,10 +154,12 @@ $viewBalance = $app->checkBalance();
 						]
 					},
 					callback: function(response){
-						alert('success. transaction ref is ' + response.reference);
+						alert('Payment was successfull. Transaction ref is ' + response.reference);
+						location.reload();
 					},
 					onClose: function(){
-						alert('window closed');
+						location.reload();
+						// alert('window closed');
 					}
 				});
 				handler.openIframe();

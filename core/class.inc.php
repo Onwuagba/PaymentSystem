@@ -36,9 +36,9 @@ class Connect {
 
         } catch (PDOException $e) {
             file_put_contents('log.txt', $e->getMessage(), FILE_APPEND); 
-            exit($e->getMessage());
-        // return "Error!: " . $e->getMessage();
-        // die();
+            // exit($e->getMessage());
+        return "Error!: " . $e->getMessage();
+        die();
         }
     }
 
@@ -115,7 +115,7 @@ class Connect {
           return false;
         }
       } 
-      catch (Exception $e) {
+      catch (PDOException $e) {
         exit($e->getMessage());
       }
     }
@@ -167,7 +167,7 @@ class Connect {
     }
 
     
-    public function getBankCode($bank){
+    public function getBankCode($bank){ 
       $cull = curl_init();
       curl_setopt_array($cull, array(
       CURLOPT_URL => "https://api.paystack.co/bank",
@@ -185,25 +185,23 @@ class Connect {
 
       if($err){
       // there was an error contacting the Paystack API
-      die('Curl returned error: ' . $err);
+        $_SESSION['failure'] = 'Curl returned error for getting bank code:'. $err;
+        return $_SESSION['failure'];
       }
 
       $tranx = json_decode($response, true);  
+      
 
       if(!$tranx['status']){ 
       // there was an error from the API
-        print_r('Error: ' . $tranx['message']);
+        return 'Error: ' . $tranx['message'];
       }else{
         if (is_array($tranx)) { 
-          foreach ($tranx as $bankName) {
-            if (is_array($bankName)){ 
-              foreach ($bankName as $bankName2) { 
-                if ($bankName2['name'] == $bank ) { 
-                  $code = $bankName2['code'];
-                  return $code; 
-                }else{
-                  $error = 'Error: There is an issue retrieving bank information.';
-                  return $error;
+          foreach ($tranx as $key1) {
+            if (is_array($key1)) {
+              foreach ($key1 as $key2) {
+                if($key2['name'] == $bank){
+                  return $key2['code'];
                 }
               }
             }
@@ -240,7 +238,8 @@ class Connect {
 
       if($errRec){
       // there was an error contacting the Paystack API
-      die('Curl returned error: ' . $errRec);
+      $_SESSION['failure'] = 'Curl returned error for getting recipient:'. $errRec;
+      return $_SESSION['failure'];
       }
 
       $transactionReceiver = json_decode($responseRec, true);  
@@ -254,7 +253,7 @@ class Connect {
       curl_close($handle);
     }
 
-    public function InitateTransfer($amount, $recipient_code){
+    public function InitateTransfer($amount, $recipient_code){ 
       $handle2 = curl_init();
       curl_setopt_array($handle2, array(
       CURLOPT_URL => "https://api.paystack.co/transfer",
@@ -278,14 +277,16 @@ class Connect {
 
       if($errRec){
       // there was an error contacting the Paystack API
-      die('Curl returned error: ' . $errRec);
+      $_SESSION['failure'] = 'Curl returned error for initiating transaction:'. $errRec;
+      return $_SESSION['failure'];
       }
 
       $initiateTransaction = json_decode($responseRec, true);  
 
       if(!$initiateTransaction['status']){ 
       // there was an error from the API
-        return('Error: ' . $initiateTransaction['message']);
+        $_SESSION['failure'] = 'Error: ' . $initiateTransaction['message']; 
+        header("Location: admin.php");
       }else{ 
         // return $initiateTransaction['data']['transfer_code'];
         $_SESSION['payment'] = "Transaction was successful"; 
@@ -317,14 +318,16 @@ class Connect {
 
       if($errRec){
       // there was an error contacting the Paystack API
-      die('Curl returned error: ' . $errRec);
+      $_SESSION['failure'] = 'Curl returned error for making bulk transfer:'. $err;
+      return $_SESSION['failure'];     
       }
 
-      $initiateTransaction = json_decode($responseRec, true);  
+      $bulkTransaction = json_decode($responseRec, true);  
 
-      if(!$initiateTransaction['status']){ 
+      if(!$bulkTransaction['status']){ 
       // there was an error from the API
-        return('Error: ' . $initiateTransaction['message']);
+        $_SESSION['failure'] = 'Error: ' . $bulkTransaction['message']; 
+        header("Location: admin.php");
       }else{ 
         // return $initiateTransaction['data']['transfer_code'];
         $_SESSION['payment'] = "Transaction was successful"; 
@@ -352,7 +355,8 @@ class Connect {
 
       if($errRec){
       // there was an error contacting the Paystack API
-      die('Curl returned error: ' . $errRec);
+      $_SESSION['failure'] = 'Curl returned error for checking balance:'. $err;
+      return $_SESSION['failure'];
       }
 
       $balance = json_decode($responseRec, true);  

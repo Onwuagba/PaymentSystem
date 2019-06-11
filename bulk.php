@@ -23,14 +23,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $descriptionErr = "Please enter a name";
   }
   
-  foreach ($requests as $request) {
-  	$transfer [] = array("amount"=>$request->salary, 
-  	"recipient"=> $app->getReceiver($request->name, $description, $request->account_number, $app->getBankCode($request->bank)));
-  }
+    foreach ($requests as $request) { 
+    	$transfer [] = array(
+    		"amount"=>$request->salary, 
+    		"recipient"=> $app->getReceiver($request->name, $description, $request->account_number, $app->getBankCode($request->bank))
+    	);
+  	} 
 
   $complete = $app->BulkTransfer($transfer);
 
-  print_r($transfer);
   //End POST request
 }
 ?>																

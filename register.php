@@ -13,7 +13,7 @@ require_once ('core/config.inc.php');
 $conn = DB(); 
 require_once ('core/class.inc.php');
 $app = new Connect;
-$name = $email = $bank = $accountname =  $accountnumber = $date = "";
+// $name = $email = $bank = $accountname =  $accountnumber = $date = "";
 $nameErr = $emailErr = $bankErr = $accountnameErr = $accountnumberErr = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") { 
@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     //Amount
     if (isset($_POST["amount"]) && !empty($_POST["amount"])) {
       $amount = \test_input(filter_input(INPUT_POST, "amount", \FILTER_SANITIZE_NUMBER_INT)); 
-      $amount = $amount * 100;
+      // $amount = $amount * 100;
       if (!preg_match('/^\d+$/', $amount)) {
         $amountErr = "Amount must be whole number"; 
       }
@@ -81,8 +81,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user_id = $app->Register($id, $name, $email, $amount, $accountnumber, $bank, $date);
         if ($user_id > 0) { 
             $register_message = $name . ' has been successfully registered.';
+        	$name = $email = $bank = $amount =  $accountnumber = $date = "";
         } else {
-            $register_error = 'problem encountered. Ensure you have a working internet';
+            $register_error = 'Problem encountered. Try registering again.';
         }
     } else {
         $register_error = 'Error encountered. Kindly treat all errors before submitting';
@@ -118,7 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	<body>
 		<div class="container">
 			<div class="row">
-				<div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+				<div class="col-sm-9 col-md-7 col-lg-5 mx-auto"><br>	
 					<?php if (isset($register_message)&&!empty($register_message)) {
 						echo "<div class=\"alert alert-success\">
 						<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>
@@ -133,7 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 					?>
 					<div class="card card-signin my-5">
 						<div class="card-body">
-							<h5 class="card-title text-center">Add New Employee</h5>
+							<h5 class="card-title text-center">Add New Vendor</h5>
 
 							<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"  method="post" class="form-signin">
 								<label for="Name">Name</label>
@@ -160,7 +161,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 									</span>
 								</div>
 								
-								<label for="Amount">Salary</label>
+								<label for="Amount">Amount</label>
 								<div class="form-label-group">
 									<input type="text" name="amount" placeholder="Input amount" value="<?php if (isset($amount)) {
 										echo htmlspecialchars($amount);
@@ -196,7 +197,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 								<label for="AccountNumber">Account Number</label>
 								<div class="form-label-group">
-									<input type="text" name="accountnumber" pattern="[0-9]{10}" value="<?php if (isset($accountnumber)) {
+									<input type="text" name="accountnumber" pattern="\d{10}" value="<?php if (isset($accountnumber)) {
 										echo htmlspecialchars($accountnumber);
 									} ?>" placeholder="Not more than 10 numbers" class="form-control" required/>
 									<span class="error">

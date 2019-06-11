@@ -9,15 +9,10 @@ if (isset($_SESSION['user'])&& !empty($_SESSION['user'])) {
 }
 
 $id = "";
-
 // get id from URL
 if (isset($_GET['id'])) { 
 	$id = $_GET['id'];
 }
-// else{
-//   session_destroy();
-//   header("Location: index.php");
-// }
 
 $login_message = '';
 require_once ('core/config.inc.php'); 
@@ -74,10 +69,7 @@ $requests = $app->getDetails($id);
 							<h5 class="card-title text-center">Pay Employee</h5>
 
 							<form action="verify.php"  method="POST" class="form-signin">
-								<input type="hidden" name="id" id="input" class="form-control" value="<?php if (isset($id)){
-										echo htmlspecialchars($id);
-									}
-									elseif (isset($requests[0]->id)) {
+								<input type="hidden" name="id" id="input" class="form-control" value="<?php if (isset($requests[0]->id)) {
 										echo $requests[0]->id;
 									} ?>">
 
