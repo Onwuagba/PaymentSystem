@@ -1,6 +1,6 @@
 # PaymentSystem
-A simple integration of PayStack payment gateway for the financial department of a bakery business 
+A simple integration of PayStack payment gateway to handle disbursement of funds to vendors of a local bakery. 
 
-Demo: 
-Username: 
-Password:
+Demo: https://payfam.herokuapp.com
+Username: ps_admin
+Password: csradmin
