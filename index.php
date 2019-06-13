@@ -28,7 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (empty($login_message)) { 
         $user_id = $app->Login($username, $password);
-        echo $user_id;
         if ($user_id > 0) { 
             $_SESSION['user'] = $username; 
             header("Location: admin.php");

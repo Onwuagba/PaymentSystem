@@ -211,6 +211,42 @@ class Connect {
       curl_close($curl);
     }
 
+    // Confirm that the account details entered are correct
+
+    public function CheckAccount($accountnumber, $bankcode){
+
+      $handle = curl_init();
+      curl_setopt_array($handle, array(
+      CURLOPT_URL => "https://api.paystack.co/bank/resolve?accountnumber=".$accountnumber."&bank_code=".$bankcode,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_CUSTOMREQUEST => "GET",
+      CURLOPT_HTTPHEADER => [
+      "authorization: Bearer sk_test_9e66427c528098ca9e91fe3d109a083f6aaf619e", 
+      "content-type: application/json",
+      "cache-control: no-cache"
+      ],
+      ));
+
+      $responseRec = curl_exec($handle); 
+      $errRec = curl_error($handle);
+
+      if($errRec){
+      // there was an error contacting the Paystack API
+      $_SESSION['failure'] = 'Curl returned error for getting recipient:'. $errRec;
+      return $_SESSION['failure'];
+      }
+
+      $transactionReceiver = json_decode($responseRec, true);  
+
+      if(!$transactionReceiver['status']){ 
+      // there was an error from the API
+        return('Error: ' . $transactionReceiver['message']);
+      }else{ 
+        return $transactionReceiver['data']['recipient_code'];
+      }
+      curl_close($handle);
+    }
+
     public function getReceiver($name, $description, $accountnumber, $bankcode){
 
       $handle = curl_init();
