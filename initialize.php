@@ -71,7 +71,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Initiate transfer
     $initiate_transx = $app->InitateTransfer($amount, $recipient_code);
-    // echo $initiate_transx;
     // End initiate transfer
 
     // End PayStack integration

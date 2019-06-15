@@ -78,16 +78,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
      $id="";    
      
     if (empty($nameErr) && empty($emailErr) && empty($amountErr) && empty($bankErr) && !empty($date) && empty($accountnumberErr)) {  
-    	if ($app->CheckAccount($accountnumber, $app->getBankCode($bank))) {
+
+    	if ($app->CheckAccount($accountnumber, $app->getBankCode($bank))) { 
         	$user_id = $app->Register($id, $name, $email, $amount, $accountnumber, $bank, $date);
 	        if ($user_id > 0) { 
 	            $register_message = $name . ' has been successfully registered.';
 	        	$name = $email = $bank = $amount =  $accountnumber = $date = "";
 	        } else {
-	            $register_error = 'Problem encountered. Try registering again.';
+	            $register_error = 'Problem encountered. Try again later.';
 	        }
 	    }else{
-	    	$register_error = 'Problem encountered. Account details is incorrect.';
+	    	$register_error = 'Account details is incorrect. Update and try again.';
 	    }
     } else {
         $register_error = 'Error encountered. Kindly treat all errors before submitting';

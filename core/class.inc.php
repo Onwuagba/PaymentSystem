@@ -93,7 +93,7 @@ class Connect {
      * Login
      *
      * @param $username, $password
-     * @return all details
+     * @return id
      * */
     public function Login($username, $password) {
       try {
@@ -208,17 +208,17 @@ class Connect {
           }
         }
       }
-      curl_close($curl);
+      curl_close($cull);
     }
 
     // Confirm that the account details entered are correct
 
-    public function CheckAccount($accountnumber, $bankcode){
+    public function CheckAccount($accountnumber, $bankcode){ 
 
-      $handle = curl_init();
-      curl_setopt_array($handle, array(
-      CURLOPT_URL => "https://api.paystack.co/bank/resolve?accountnumber=".$accountnumber."&bank_code=".$bankcode,
-      CURLOPT_RETURNTRANSFER => true,
+      $handler = curl_init();
+      curl_setopt_array($handler, array(
+      CURLOPT_URL => "https://api.paystack.co/bank/resolve?account_number=".$accountnumber."&bank_code=".$bankcode, 
+      CURLOPT_RETURNTRANSFER => true, 
       CURLOPT_CUSTOMREQUEST => "GET",
       CURLOPT_HTTPHEADER => [
       "authorization: Bearer sk_test_9e66427c528098ca9e91fe3d109a083f6aaf619e", 
@@ -227,24 +227,24 @@ class Connect {
       ],
       ));
 
-      $responseRec = curl_exec($handle); 
-      $errRec = curl_error($handle);
+      $responseRec = curl_exec($handler); 
+      $errRec = curl_error($handler);
 
       if($errRec){
       // there was an error contacting the Paystack API
-      $_SESSION['failure'] = 'Curl returned error for getting recipient:'. $errRec;
+      $_SESSION['failure'] = 'Curl returned error while confirming account details:'. $errRec;
       return $_SESSION['failure'];
       }
 
       $transactionReceiver = json_decode($responseRec, true);  
-
       if(!$transactionReceiver['status']){ 
-      // there was an error from the API
-        return('Error: ' . $transactionReceiver['message']);
+      // there was an error from the API 
+        // return $transactionReceiver['message'];
+        return false;
       }else{ 
-        return $transactionReceiver['data']['recipient_code'];
+        return $transactionReceiver['data']['account_name'];
       }
-      curl_close($handle);
+      curl_close($handler);
     }
 
     public function getReceiver($name, $description, $accountnumber, $bankcode){

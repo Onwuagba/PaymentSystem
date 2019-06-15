@@ -20,7 +20,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (isset($_POST["description"]) && !empty($_POST["description"])) { 
     $description = \test_input(filter_input(\INPUT_POST, "description", \FILTER_SANITIZE_STRING)); 
   } else {
-    $descriptionErr = "Please enter a name";
+   $_SESSION['failure'] = "Please enter a description for payment.";
+   header("Location: admin.php");
   }
   
     foreach ($requests as $request) { 
