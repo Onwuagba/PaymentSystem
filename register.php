@@ -78,11 +78,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
      $id="";    
      
     if (empty($nameErr) && empty($emailErr) && empty($amountErr) && empty($bankErr) && !empty($date) && empty($accountnumberErr)) {  
-
-    	if ($app->CheckAccount($accountnumber, $app->getBankCode($bank))) { 
+    	$outcome = $app->CheckAccount($accountnumber, $app->getBankCode($bank));
+    	if ($outcome) { 
         	$user_id = $app->Register($id, $name, $email, $amount, $accountnumber, $bank, $date);
 	        if ($user_id > 0) { 
-	            $register_message = $name . ' has been successfully registered.';
+	            $register_message = 'Vendor ' . $name . ' with account name '. $outcome .' has been successfully registered.';
 	        	$name = $email = $bank = $amount =  $accountnumber = $date = "";
 	        } else {
 	            $register_error = 'Problem encountered. Try again later.';
