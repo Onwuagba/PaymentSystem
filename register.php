@@ -28,6 +28,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST["email"]) && !empty($_POST["email"])) { 
         $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
         $email = test_input(filter_input(INPUT_POST, "email", FILTER_VALIDATE_EMAIL));
+        if (!preg_match("/([\w\-]+\@[\w\-]+\.[\w\-]+)/", $email)) {
+            $emailErr = "Invalid email format";
+        } elseif ($app->isEmail($email)) {
+            $emailErr = "Email already exists";
+        }
         if ($app->isEmail($email)) {
             $emailErr = "Email already exists";
         }
