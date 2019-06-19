@@ -33,9 +33,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } elseif ($app->isEmail($email)) {
             $emailErr = "Email already exists";
         }
-        if ($app->isEmail($email)) {
-            $emailErr = "Email already exists";
-        }
     } else {
         $emailErr = "Please enter an Email";
     }
