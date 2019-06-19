@@ -1,9 +1,9 @@
 <?php
 
-define('HOST', 'localhost'); 
-define('USER', 'root');
-define('PASSWORD', ''); 
-define('DATABASE', 'db_paymentsystem'); 
+define('HOST', 'us-cdbr-iron-east-02.cleardb.net'); 
+define('USER', 'bb5b89bc3630ff');
+define('PASSWORD', 'e58905aa'); 
+define('DATABASE', 'heroku_ced5bb7fc3333d0'); 
 
 function DB()
 {
